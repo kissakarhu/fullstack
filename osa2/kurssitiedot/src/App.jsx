@@ -3,14 +3,13 @@ const Course = ({course}) => {
     <>
     <Header name={course.name} />
     <Content content={course.parts} />
+    <Total parts={course.parts} />
     </>
   )
 }
 
 const Header = ({name}) => {
-  return (
-    <h1>{name}</h1>    
-  )
+  return <h1>{name}</h1>
 }
 
 const Content = ({content}) => {
@@ -20,15 +19,14 @@ const Content = ({content}) => {
 }
 
 const Total = ({parts}) => {
-  return (
-    <p>Number of exercises {parts[0].exercises + parts[1].exercises + parts[2].exercises}</p>
-  )
+  const total = parts.reduce(
+    (accumulator, currentValue) => accumulator + currentValue.exercises, 0)
+  
+  return <p>total of {total} exercises</p>
 }
 
 const Part = ({name, exercises}) => {
-  return (
-    <p>{name} {exercises}</p>
-  )
+  return <p>{name} {exercises}</p>
 }
 
 const App = () => {
