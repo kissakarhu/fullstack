@@ -114,7 +114,7 @@ const App = () => {
             setPersons(persons.filter(person => person.id !== id))
           })
           .catch(error => {
-            console.error(`Poisto epäonnistui: ${error}`)
+            console.error(`Delete failed: ${error}`)
             }
           )
     }
