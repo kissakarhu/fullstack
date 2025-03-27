@@ -31,16 +31,28 @@ const PersonForm = ({ onSubmit, newName, onNameChange, newNumber, onNumberChange
   )
 }
 
-const Persons = ({ contacts }) => {
+const Persons = ({ contacts, handleDelete }) => {
   return (
     <ul>
-      {contacts.map(contact => <Person key={contact.name} name={contact.name} number={contact.number} />)}
+      {contacts.map(contact => (
+        <Person 
+          key={contact.id} 
+          name={contact.name} 
+          number={contact.number} 
+          onDelete={() => handleDelete(contact.id)} 
+        />
+      ))}
     </ul>
   )
 }
 
-const Person = ({ name, number }) => {
-  return <li>{name} {number}</li>
+const Person = ({ name, number, onDelete }) => {
+  return (
+    <li>
+      {name} {number}
+      <button onClick={onDelete}>delete</button>
+    </li>
+  )
 }
 
 const App = () => {
@@ -93,6 +105,21 @@ const App = () => {
     setShowAll(event.target.value === '')
   }
 
+  const handleDelete = (id) => {
+    const confirmed = window.confirm("Are you sure you want to delete this contact?")
+    if (confirmed) {
+      personsService
+        .deleteNumber(id)
+          .then(() => {
+            setPersons(persons.filter(person => person.id !== id))
+          })
+          .catch(error => {
+            console.error(`Poisto epäonnistui: ${error}`)
+            }
+          )
+    }
+  }
+
   return (
     <>
       <h2>Phonebook</h2>
@@ -103,9 +130,10 @@ const App = () => {
         newName={newName} 
         onNameChange={handleNameChange}
         newNumber={newNumber}
-        onNumberChange={handleNumberChange} />
+        onNumberChange={handleNumberChange} 
+      />
       <h2>Numbers</h2>
-      <Persons contacts={contactsToShow} />
+      <Persons contacts={contactsToShow} handleDelete={handleDelete}/>
     </>
   )
 

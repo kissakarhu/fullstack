@@ -12,4 +12,9 @@ const addNewNumber = newNumber => {
     return request.then(response => response.data)
 }
 
-export default { getAll, addNewNumber }
+const deleteNumber = id => {
+    const request = axios.delete(`${baseUrl}/${id}`)
+    return request.then(response => response.data)
+}
+
+export default { getAll, addNewNumber, deleteNumber }
