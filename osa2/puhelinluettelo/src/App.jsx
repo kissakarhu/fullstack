@@ -53,9 +53,9 @@ const App = () => {
   useEffect(() => {
     personsService
       .getAll()
-      .then(response => {
-        setPersons(response.data)
-      })
+        .then(initialNumbers => {
+          setPersons(initialNumbers)
+        })
   }, [])
 
   const contactsToShow = showAll
@@ -69,13 +69,13 @@ const App = () => {
     if (found) {
       window.alert(`${newName} is already added to the phonebook`)
     } else {
-      const contactObject = { name: newName, number: newNumber }
+      const numberObject = { name: newName, number: newNumber }
       personsService
-        .addNewNumber(contactObject)
-        .then(response => {
-          setPersons(persons.concat(response.data))
-          setNewName('')
-          setNewNumber('')
+        .addNewNumber(numberObject)
+          .then(returnedNumber => {
+            setPersons(persons.concat(returnedNumber))
+            setNewName('')
+            setNewNumber('')
         })
     }
   }
