@@ -39,7 +39,7 @@ const Persons = ({ contacts, handleDelete }) => {
           key={contact.id} 
           name={contact.name} 
           number={contact.number} 
-          onDelete={() => handleDelete(contact.id)} 
+          onDelete={() => handleDelete(contact)} 
         />
       ))}
     </ul>
@@ -55,12 +55,33 @@ const Person = ({ name, number, onDelete }) => {
   )
 }
 
+const Notification = ({ message }) => {
+  const notificationStyle = {
+    color: 'green',
+    fontStyle: 'italic',
+    fontSize: 16,
+    borderStyle: 'solid',
+    borderRadius: '5px',
+    padding: '10px',
+    marginBottom: '10px'
+  }
+
+  if (message === null) {
+    return null
+  }
+
+  return (
+    <div style={notificationStyle}>{message}</div>
+  )
+}
+
 const App = () => {
   const [persons, setPersons] = useState([])
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
   const [showAll, setShowAll] = useState(true)
+  const [notification, setNotification] = useState(null)
 
   useEffect(() => {
     personsService
@@ -88,6 +109,10 @@ const App = () => {
               setPersons(persons.map(note => note.id !== found.id ? note : updatedNumber))
               setNewName('')
               setNewNumber('')
+              setNotification(`Updated the number of ${updatedNumber.number}`)
+              setTimeout(() => {
+                setNotification(null)
+              }, 5000)
             })
       }
     } else {
@@ -98,7 +123,11 @@ const App = () => {
             setPersons(persons.concat(returnedNumber))
             setNewName('')
             setNewNumber('')
-        })
+            setNotification(`${newName} was added to the phonebook`)
+            setTimeout(() => {
+              setNotification(null)
+            }, 5000)
+          })
     }
   }
 
@@ -115,14 +144,18 @@ const App = () => {
     setShowAll(event.target.value === '')
   }
 
-  const handleDelete = (id) => {
-    const confirmed = window.confirm("Are you sure you want to delete this contact?")
+  const handleDelete = (contact) => {
+    const confirmed = window.confirm(`Are you sure you want to delete ${contact.name}?`)
     if (confirmed) {
       personsService
-        .deleteNumber(id)
+        .deleteNumber(contact.id)
           .then(() => {
-            setPersons(persons.filter(person => person.id !== id))
-          })
+            setPersons(persons.filter(person => person.id !== contact.id))
+            setNotification(`Deleted ${contact.name}`)
+              setTimeout(() => {
+                setNotification(null)
+              }, 5000)
+            })
           .catch(error => {
             console.error(`Delete failed: ${error}`)
             }
@@ -133,6 +166,7 @@ const App = () => {
   return (
     <>
       <h2>Phonebook</h2>
+      <Notification message={notification} />
       <Filter filter={filter} onChange={handleFilterChange} />
       <h2>Add new contact</h2>
       <PersonForm
@@ -146,7 +180,6 @@ const App = () => {
       <Persons contacts={contactsToShow} handleDelete={handleDelete}/>
     </>
   )
-
 }
 
 export default App
