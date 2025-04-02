@@ -27,10 +27,7 @@ let numbers = [
 ]
 
 const generateId = () => {
-    const maxId = numbers.length > 0
-      ? Math.max(...numbers.map(n => Number(n.id)))
-      : 0
-    return maxId + 1
+    return Math.floor(Math.random() * 1000000).toString()
 }
 
 app.get('/api/persons', (request, response) => {
