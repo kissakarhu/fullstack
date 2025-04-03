@@ -62,13 +62,15 @@ app.get('/api/persons/:id', (request, response) => {
     }
 })
 
-app.delete('/api/persons/:id', (request, response) => {
-    Person.deleteOne({ _id: request.params.id }).then(result => {
+app.delete('/api/persons/:id', (request, response, next) => {
+    Person.deleteOne({ _id: request.params.id })
+    .then(result => {
         response.status(204).end()
     })
+    .catch(error => next(error))
 })
 
-app.post('/api/persons', (request, response) => {
+app.post('/api/persons', (request, response, next) => {
     const body = request.body
     
     if (!body.name || !body.number) {
@@ -91,10 +93,24 @@ app.post('/api/persons', (request, response) => {
         id: generateId()
     })
     
-    person.save().then(result => {
-        response.json(result)
-    })
+    person.save()
+        .then(result => response.json(result))
+        .catch(() => next(error))
 })
+
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
+
+    if (error.name === 'CastError') {
+        return response.status(400).json({ error: 'malformatted id' })
+    } else if (error.name === 'ValidationError') {
+        return response.status(400).json({ error: error.message })
+    }
+
+    next(error)
+}
+
+app.use(errorHandler)
 
 const PORT = process.env.PORT
 app.listen(PORT, () => {
