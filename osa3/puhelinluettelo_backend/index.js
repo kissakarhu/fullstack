@@ -86,14 +86,15 @@ app.post('/api/persons', (request, response) => {
         })
     }
 
-    const person = {
+    const person = new Person({
         name: body.name,
         number: body.number,
         id: generateId()
-    }
+    })
     
-    numbers = numbers.concat(person)
-    response.json(person)
+    person.save().then(result => {
+        response.json(result)
+    })
 })
 
 const PORT = process.env.PORT
