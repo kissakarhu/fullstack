@@ -52,9 +52,6 @@ app.get('/info', (request, response) => {
         .then(count => {
             response.send(`<p>Phonebook has info for ${count} people</p><p>${time}</p>`)
         })
-
-
-    response.send(`<p>Phonebook has info for for ${numbers.length} people</p><p>${time}</p>`)
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
@@ -86,14 +83,6 @@ app.post('/api/persons', (request, response, next) => {
         })
     }
 
-    const found = numbers.find(person => person.name === body.name)
-
-    if (found) {
-        return response.status(400).json({
-            'error': 'name must be unique'
-        })
-    }
-
     const person = new Person({
         name: body.name,
         number: body.number,
@@ -103,6 +92,29 @@ app.post('/api/persons', (request, response, next) => {
     person.save()
         .then(result => response.json(result))
         .catch(() => next(error))
+})
+
+app.put('/api/persons/:id', (request, response, next) => {
+    const { name, number } = request.body
+
+    if (!name || !number) {
+        return response.status(400).json({ error: 'name or number missing' })
+    }
+
+    const updatedPerson = { name, number }
+
+    Person.findByIdAndUpdate(
+        request.params.id,
+        updatedPerson,
+        { new: true}
+    )
+    .then(updatedPerson => {
+        if (!updatedPerson) {
+            return response.status(404).json({ error: 'Person not found' })
+        }
+        response.json(updatedPerson)
+    })
+    .catch(error => next(error))
 })
 
 const errorHandler = (error, request, response, next) => {
