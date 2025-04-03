@@ -1,10 +1,5 @@
 const mongoose = require('mongoose')
 
-//if (process.argv.length < 3) {
-//    console.log('give password as an argument')
-//    process.exit(1)
-//}
-
 mongoose.set('strictQuery', false)
 
 const url = process.env.MONGODB_URI
@@ -23,26 +18,6 @@ const personSchema = new mongoose.Schema({
 })
 
 const Person = mongoose.model('Person', personSchema)
-
-if (process.argv.length === 3) {
-    console.log('Phonebook:')
-    Person.find({}).then(result => {
-        response.json(result)
-        mongoose.connection.close()
-    })
-} else if (process.argv.length === 5) {
-    const name = process.argv[3]
-    const number = process.argv[4]
-    const person = new Person({
-        name: name,
-        number: number
-    })
-
-    person.save().then(result => {
-        console.log(`${name} saved to the phonebook!`)
-        mongoose.connection.close()
-    })
-}
 
 personSchema.set('toJSON', {
     transform: (document, returnedObject) => {
