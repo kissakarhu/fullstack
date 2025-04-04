@@ -128,15 +128,17 @@ const App = () => {
       const numberObject = { name: newName, number: newNumber }
       personsService
         .addNewNumber(numberObject)
-          .then(returnedNumber => {
-            setPersons(persons.concat(returnedNumber))
-            setNewName('')
-            setNewNumber('')
-            setNotification(`${newName} was added to the phonebook`)
-            setTimeout(() => {
-              setNotification(null)
-            }, 5000)
-          })
+        .then(returnedNumber => {
+          setPersons(persons.concat(returnedNumber));
+          setNewName('');
+          setNewNumber('');
+          setNotification(`${newName} was added to the phonebook`);
+          setTimeout(() => setNotification(null), 5000);
+        })
+        .catch(error => {
+          setNotification(error.response.data.error);
+          setTimeout(() => setNotification(null), 5000);
+      })
     }
   }
 
