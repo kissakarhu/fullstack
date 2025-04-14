@@ -11,7 +11,7 @@ test('GET returns correct amount of blogs as JSON', async () => {
         .expect(200)
         .expect('Content-Type', /application\/json/)
     
-    const expectedBlogCount = 16
+    const expectedBlogCount = 26
     if (response.body.length !== expectedBlogCount) {
         throw new Error(`Expected ${expectedBlogCount} blogs, got ${response.body.length}`)
     }
@@ -61,6 +61,100 @@ test('a new blog can be added with POST request', async () => {
         throw new Error('New blog cannot be found from the bloglist')
     }
 
+})
+
+test('likes is set to 0 if not specified', async () => {
+    const newBlog = {
+        title: 'Blog without likes',
+        author: 'No Likes Guy',
+        url: 'http://example.com/nolikes'
+    }
+
+    const response = await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+
+    const savedBlog = response.body
+    if (savedBlog.likes !== 0) {
+        throw new Error(`Expected likes to default to 0, got ${savedBlog.likes}`)
+    }
+    
+})
+
+test('blog without title is not added and returns 400', async () => {
+    const initialResponse = await api.get('/api/blogs')
+    const initialCount = initialResponse.body.length
+
+    const newBlog = {
+        author: 'No Name Guy',
+        url: 'http://nourl.com',
+        likes: 1
+    }
+
+    const response = await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(400)
+
+    const responseAfter = await api.get('/api/blogs')
+    const finalCount = responseAfter.body.length
+
+    if (finalCount !== initialCount) {
+        throw new Error('Blog without title was incorrectly added to the database')
+    }
+})
+
+test('blog without url is not added and returns 400', async () => {
+    const initialResponse = await api.get('/api/blogs')
+    const initialCount = initialResponse.body.length
+
+    const newBlog = {
+        title: 'Blog Without Url',
+        author: 'No Name Guy',
+        likes: 8
+    }
+
+    const response = await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(400)
+
+    const responseAfter = await api.get('/api/blogs')
+    const finalCount = responseAfter.body.length
+
+    if (finalCount !== initialCount) {
+        throw new Error('Blog without url was incorrectly added to the database')
+    }
+})
+
+test('delete blog', async () => {
+    const newBlog = {
+        title: 'Blog to be deleted',
+        author: 'Author to be deleted',
+        url: 'http://urltoberemoved.com',
+        likes: 2
+    }
+
+    const response = await api
+        .post('/api/blogs')
+        .send(newBlog)
+        .expect(201)
+        .expect('Content-Type', /application\/json/)
+
+    const blogToDelete = response.body
+
+    await api
+        .delete(`/api/blogs/${blogToDelete.id}`)
+        .expect(204)
+
+    const responseAfter = await api.get('/api/blogs')
+    const ids = responseAfter.body.map(blog => blog.id)
+
+    if (ids.includes(blogToDelete.id)) {
+        throw new Error('Blog was not deleted')
+    }
 })
 
 after(async () => {
