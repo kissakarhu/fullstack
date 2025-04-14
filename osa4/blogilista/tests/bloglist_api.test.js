@@ -17,6 +17,23 @@ test('GET returns correct amount of blogs as JSON', async () => {
     }
 })
 
+test('blogs have id field, not _id', async () => {
+    const response = await api.get('/api/blogs')
+
+    const blogs = response.body
+
+    blogs.forEach(blog => {
+        if (!blog.id) {
+            throw new Error('Blog is missing id field')
+        }
+        if (blog._id) {
+            throw new Error('Blog should not contain _id field')
+        }
+    })
+        
+    
+})
+
 after(async () => {
     await mongoose.connection.close()
   })
